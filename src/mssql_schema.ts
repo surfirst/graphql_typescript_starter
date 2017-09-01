@@ -1,3 +1,45 @@
+import * as sql from 'mssql';
+
+interface MsSqlConfig{
+    user: string;
+    password: string;
+    server: string;
+    database: string
+
+    options: any
+}
+
+export class SqlQuery{
+     static async Execute() : Promise<sql.IRecordSet<any>> {
+        try {
+            const config : MsSqlConfig = {
+                user: 'sa',
+                password: '*****',
+                server: '10.175.29.81', // You can use 'localhost\\instance' to connect to named instance 
+                database: 'Customer',
+             
+                options: {
+                    encrypt: true // Use this if you're on Windows Azure 
+                }
+            };
+
+            let conn = new sql.ConnectionPool(config);
+            let pool = await conn.connect();
+            let customers = await pool.request().query(
+                'SELECT id, name, email, age from Customer'
+            );
+
+            console.log(customers.recordset);
+
+            return customers.recordset;
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+}
+
+
 import * as GraphQL from 'graphql';
 
 interface Customer{
@@ -8,12 +50,13 @@ interface Customer{
 }
 
 export class MyQuery {
+
     static readonly customers: Customer[] = [
         {id: '1', name: 'John Doe', email:'jdoe@gmail.com', age:35},
         {id: '2', name: 'Steve Smith', email:'steve@gmail.com', age:25},
         {id: '3', name: 'Sara Williams', email:'sara@gmail.com', age:32},
     ];
-
+    
     // Customer Type
     static readonly CustomerType = new GraphQL.GraphQLObjectType({
         name: 'Customer',
@@ -27,7 +70,7 @@ export class MyQuery {
 
     GetRootQuery() : GraphQL.GraphQLSchema
     {
-        let customersResolver = (parentValue:any, args:any) : Customer[] =>{
+        let customersResolver = (parentValue:any, args:any) : Promise<sql.IRecordSet<any>> =>{
             return this.resolveCustomers(parentValue, args);
         };        
 
@@ -62,6 +105,7 @@ export class MyQuery {
     }
 
     resolveCustomer(parentValue: any, args: any) : Customer{
+        
         for(let i = 0; i < MyQuery.customers.length; i++){
             if(MyQuery.customers[i].id == args.id){
                 return MyQuery.customers[i];
@@ -71,8 +115,11 @@ export class MyQuery {
         return null;
     }
 
-    resolveCustomers(parentValue: any, args: any) : Customer[]{        
-        return MyQuery.customers;
+    resolveCustomers(parentValue: any, args: any) : Promise<sql.IRecordSet<any>> {        
+        
+        let customers = Promise.resolve(SqlQuery.Execute());
+
+        return customers;
     }
 }
 
