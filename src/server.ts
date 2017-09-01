@@ -1,12 +1,13 @@
 import * as express from 'express';
 import * as graphqlHTTP from 'express-graphql';
-//const schema = require('./schema.js');
-import * as schema from './schema';
+import {MyQuery} from './schema';
 
 const app = express();
 
+let schema = new MyQuery().GetRootQuery();
+
 app.use('/graphql', graphqlHTTP({
-    schema:schema,
+    schema: schema,
     graphiql:true
 }));
 
