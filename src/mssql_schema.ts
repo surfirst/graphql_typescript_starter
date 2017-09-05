@@ -1,4 +1,5 @@
 import * as sql from 'mssql';
+import * as GraphQL from 'graphql';
 
 interface MsSqlConfig{
     user: string;
@@ -38,9 +39,6 @@ export class SqlQuery{
         }
     }
 }
-
-
-import * as GraphQL from 'graphql';
 
 interface Customer{
     id: string;

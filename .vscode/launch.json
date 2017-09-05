@@ -11,8 +11,10 @@
             "name": "Launch Program",
             "program": "${workspaceRoot}/dist/server.js",
             "outFiles": [
-                "${workspaceRoot}/out/**/*.js"
-            ]
+                "${workspaceRoot}/dist/**/*.js"
+            ],
+            "sourceMaps": true
+
         }
     ]
 }
